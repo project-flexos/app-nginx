@@ -1,30 +1,48 @@
-specification: '0.5'
+---
+specification: '0.6'
 name: nginx
 unikraft:
-  version: '0.5'
+  version: staging
   kconfig:
-    - CONFIG_LIBUK9P=y
-    - CONFIG_LIB9PFS=y
     - CONFIG_LIBDEVFS=y
     - CONFIG_LIBDEVFS_AUTOMOUNT=y
     - CONFIG_LIBVFSCORE_AUTOMOUNT_ROOTFS=y
-    - CONFIG_LIBVFSCORE_ROOTFS_9PFS=y
+    - CONFIG_LIBVFSCORE_ROOTFS_RAMFS=y
     - CONFIG_LIBUKLIBPARAM=y
-    - CONFIG_LIBUKSCHEDCOOP=y
+    - CONFIG_LIBUKDEBUG=y
+    - CONFIG_LIBUKALLOC=y
+    - CONFIG_LIBUKSCHED=y
+    - CONFIG_LIBPOSIX_SYSINFO=y
     - CONFIG_LIBPOSIX_LIBDL=y
-    - CONFIG_LIBPOSIX_PROCESS=y
-    - CONFIG_LIBPOSIX_USER=y
-    - CONFIG_UKSYSINFO=y
-    - CONFIG_LIBUKMMAP=y
-    - CONFIG_LIBUKTIME=y
+    - CONFIG_LIBFLEXOS=y
 targets:
   - architecture: x86_64
     platform: kvm
+compartments:
+  - name: comp1
+    mechanism:
+      driver: intel-pku
+      noisolstack: false
+    default: true
+  - name: comp2
+    mechanism:
+      driver: intel-pku
+      noisolstack: false
 libraries:
-  pthread-embedded: '0.5'
-  newlib: '0.5'
+  tlsf:
+    version: staging
+    kconfig:
+      - CONFIG_LIBTLSF=y
+  pthread-embedded:
+    version: staging
+    compartment: comp1
+  newlib:
+    version: staging
+    kconfig:
+      - CONFIG_LIBNEWLIBC=y
+    compartment: comp1
   lwip:
-    version: '0.5'
+    version: staging
     kconfig:
       - CONFIG_LWIP_UKNETDEV=y
       - CONFIG_LWIP_TCP=y
@@ -36,11 +54,11 @@ libraries:
       - CONFIG_LWIP_IPV4=y
       - CONFIG_LWIP_DHCP=y
       - CONFIG_LWIP_DNS=y
+    compartment: comp2
   nginx:
-    version: '0.5'
+    version: staging
     kconfig:
       - CONFIG_LIBNGINX_MAIN_FUNCTION=y
-volumes:
-  fs0:
-    driver: 9pfs
-    source: ./fs0
+    compartment: comp1
+volumes: {}
+networks: {}
